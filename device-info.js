@@ -12,9 +12,11 @@ var screenHeader = tabris.create("Label", {
   layoutData: {centerX: 0, top: sectionTopGap}
 }).set("text", "Screen").appendTo(page);
 
-var x = createKeyValue(screenHeader, "Width:");
-var y = createKeyValue(x, "Height:");
-var density = createKeyValue(y, "Density:");
+var scaleFactor = device.scaleFactor;
+
+var x = createKeyValue(screenHeader, "Width:", dipToString(device.screen.width, scaleFactor));
+var y = createKeyValue(x, "Height:", dipToString(device.screen.height, scaleFactor));
+var density = createKeyValue(y, "Density:", scaleFactor);
 
 var deviceHeader = tabris.create("Label", {
   font: "24px",
@@ -23,21 +25,30 @@ var deviceHeader = tabris.create("Label", {
 
 var model = createKeyValue(deviceHeader, "Model:", device.model);
 var platform = createKeyValue(model, "Platform:", device.platform);
-var language = createKeyValue(platform, "Languag:", device.language);
+var version = createKeyValue(platform, "Version:", device.version);
+var language = createKeyValue(version, "Languag:", device.language);
 
 page.open();
 
 function createKeyValue(previous, key, value) {
-  value = defaultFor(value, ""); 
   var keyLabel = tabris.create("Label", {
     font: "bold 18px",
-    layoutData: {left: 18, top: [previous, 12]}
+    layoutData: {left: 18, top: [previous, 12], right: [70, 0]},
+    alignment: "right"
   }).set("text", key).appendTo(page);
   var valueLabel = tabris.create("Label", {
     font: "18px",
-    layoutData: {left: [keyLabel, 18], top: [previous, 12]}
-  }).set("text", value).appendTo(page);
+    layoutData: {left: [keyLabel, 12], top: [previous, 12]}
+  }).set("text", defaultFor(value, '-')).appendTo(page);
   return keyLabel;
+}
+
+function dipToString(value, scaleFactor) {
+  if(typeof value == 'undefined') {
+    return "unknown";
+  } else {
+    return value + "dip" + " (" + (value * scaleFactor) + "px)";
+  }
 }
 
 function defaultFor(arg, val) {
